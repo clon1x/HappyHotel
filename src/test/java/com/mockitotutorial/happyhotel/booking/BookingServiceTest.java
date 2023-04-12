@@ -50,5 +50,22 @@ class BookingServiceTest {
 		}
 	}
 	
+	@Nested
+	class GetAvailablePlaceCountTests {
+		@Test
+		void should_CountAvailablePlaces() {
+			
+			// given
+			int expected = 0;
+			
+			// when
+			int actual = bookingService.getAvailablePlaceCount();
+			
+			// then
+			assertEquals(expected, actual);
+			
+		}
+	}
+	
 
 }
