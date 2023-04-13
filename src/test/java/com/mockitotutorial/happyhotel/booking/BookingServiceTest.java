@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -88,10 +89,9 @@ class BookingServiceTest {
 		void should_CountCorrectPlaces_When_MultipleRoomsAvailable() {
 			
 			// given
+			List<Room> rooms = Arrays.asList(new Room("101",2), new Room("102",3), new Room("105",1));
 			Mockito.when(roomServiceMock.getAvailableRooms())
-				.thenReturn(Arrays.asList(new Room("101",2), 
-										  new Room("102",3), 
-										  new Room("105",1)));
+				.thenReturn(rooms);
 			int expected = 6;
 
 			// when
