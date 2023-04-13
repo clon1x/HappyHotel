@@ -3,6 +3,7 @@ package com.mockitotutorial.happyhotel.booking;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -52,8 +53,9 @@ class BookingServiceTest {
 	
 	@Nested
 	class GetAvailablePlaceCountTests {
+		
 		@Test
-		void should_CountAvailablePlaces() {
+		void should_ReturnZero_When_NoRoomsAvailable() {
 			
 			// given
 			int expected = 0;
@@ -65,7 +67,21 @@ class BookingServiceTest {
 			assertEquals(expected, actual);
 			
 		}
+		
+		@Test
+		void should_CountAvailablePlaces_When_OneRoomAvailable() {
+			
+			// given
+			Mockito.when(roomServiceMock.getAvailableRooms()).thenReturn(Collections.singletonList(new Room("101", 2)));
+			int expected = 2;
+			
+			// when
+			int actual = bookingService.getAvailablePlaceCount();
+			
+			// then
+			assertEquals(expected, actual);
+			
+		}
 	}
-	
 
 }
