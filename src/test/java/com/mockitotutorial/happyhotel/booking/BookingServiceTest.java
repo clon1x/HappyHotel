@@ -3,6 +3,7 @@ package com.mockitotutorial.happyhotel.booking;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -82,6 +83,25 @@ class BookingServiceTest {
 			assertEquals(expected, actual);
 			
 		}
+		
+		@Test
+		void should_CountCorrectPlaces_When_MultipleRoomsAvailable() {
+			
+			// given
+			Mockito.when(roomServiceMock.getAvailableRooms())
+				.thenReturn(Arrays.asList(new Room("101",2), 
+										  new Room("102",3), 
+										  new Room("105",1)));
+			int expected = 6;
+
+			// when
+			int actual = bookingService.getAvailablePlaceCount();
+			
+			// then
+			assertEquals(expected, actual);
+			
+		}
+		
 	}
 
 }
