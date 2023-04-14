@@ -1,5 +1,6 @@
 package com.mockitotutorial.happyhotel.booking;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
@@ -102,6 +103,26 @@ class BookingServiceTest {
 			
 		}
 		
+		@Test
+		void should_CountAvailablePlaces_When_CalledMultipleTimes() {
+			
+			// given
+			Mockito.when(roomServiceMock.getAvailableRooms())
+				.thenReturn(Collections.singletonList(new Room("406", 6)))
+				.thenReturn(Collections.emptyList());
+			int expectedFirstCall = 6;
+			int expectedSecondCall = 0;
+
+			// when
+			int actualFirstCall = bookingService.getAvailablePlaceCount();
+			int actualSecondCall = bookingService.getAvailablePlaceCount();
+			
+			// then
+			assertAll(
+					() -> assertEquals(expectedFirstCall, actualFirstCall),
+					() -> assertEquals(expectedSecondCall, actualSecondCall));
+			
+		}
 	}
 
 }
