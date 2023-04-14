@@ -272,5 +272,24 @@ class BookingServiceTest {
 			
 		}	
 	
+		@Test
+		void should_NotThrowException_When_EMailConfirmationFails() {
+			
+			// given
+			BookingRequest bookingRequest = new BookingRequest("1",
+															   LocalDate.of(2023, 01, 01),
+															   LocalDate.of(2023, 01, 05), 
+															   2, 
+															   false);
+			Mockito.when(mailSenderMock.sendBookingConfirmation(any()))
+				.thenThrow(BusinessException.class);
+			
+			// when
+			Executable makeBooking = () -> bookingService.makeBooking(bookingRequest);
+			
+			// then
+			assertThrows(BusinessException.class, makeBooking);
+			
+		}
 	}
 }
