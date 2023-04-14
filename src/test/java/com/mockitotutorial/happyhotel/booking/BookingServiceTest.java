@@ -2,6 +2,7 @@ package com.mockitotutorial.happyhotel.booking;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 
 class BookingServiceTest {
@@ -125,4 +127,26 @@ class BookingServiceTest {
 		}
 	}
 
+	@Nested
+	class MakeBookingTests {
+		@Test
+		void should_ThrowBusinessException_When_NoRoomAvailable() {
+			
+			// given
+			BookingRequest bookingRequest = new BookingRequest("1",
+															   LocalDate.of(2023, 01, 01),
+															   LocalDate.of(2023, 01, 05), 
+															   2, 
+															   false);
+			Mockito.when(roomServiceMock.findAvailableRoomId(bookingRequest))
+				.thenThrow(BusinessException.class);
+			
+			// when
+			Executable makeBooking = () -> bookingService.makeBooking(bookingRequest);
+			
+			// then
+			assertThrows(BusinessException.class, makeBooking);
+			
+		}
+	}
 }
