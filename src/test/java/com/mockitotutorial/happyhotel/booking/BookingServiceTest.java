@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -189,6 +190,44 @@ class BookingServiceTest {
 				() -> assertEquals(expected, actual)
 			);
 		}	
+
+		@Test
+		void should_MakeBooking_When_RequestIsNotPrepaid() {
+			
+		// given
+			BookingRequest bookingRequest = new BookingRequest("1",
+															   LocalDate.of(2023, 01, 01),
+															   LocalDate.of(2023, 01, 05), 
+															   2, 
+															   false);
+			final String AVAILABLE_ROOM_ID = "101";
+			final String BOOKING_ID = "748921";
+			final String PAYMENT_ANSWER = "OK BBVA AuthCode 1djklñzx7890v807897r891";
+			
+			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
+				.thenReturn(AVAILABLE_ROOM_ID);
+			
+			when(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
+				.thenReturn(PAYMENT_ANSWER);
+			
+			when(bookingDAOMock.save(any())).thenReturn(BOOKING_ID);
+			
+			String expected = BOOKING_ID;
+			
+		// when
+			String actual = bookingService.makeBooking(bookingRequest);
+			
+		// then
+			Mockito.verify(roomServiceMock).findAvailableRoomId(bookingRequest);
+			Mockito.verify(paymentServiceMock, never()).pay(any(), anyDouble());
+			Mockito.verify(bookingDAOMock).save(bookingRequest);
+			Mockito.verify(roomServiceMock).bookRoom(AVAILABLE_ROOM_ID);
+			Mockito.verify(mailSenderMock).sendBookingConfirmation(BOOKING_ID);
+			
+			assertAll(
+				() -> assertEquals(expected, actual)
+			);
+		}
 		
 		@Test
 		void should_RethrowException_When_PriceIsTooHigh() {
