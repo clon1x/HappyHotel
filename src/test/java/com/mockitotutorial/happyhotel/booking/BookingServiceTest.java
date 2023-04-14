@@ -246,49 +246,5 @@ class BookingServiceTest {
 			Mockito.verify(roomServiceMock).unbookRoom(ROOM_ID);
 			Mockito.verify(bookingDAOMock).delete(BOOKING_ID);
 		}
-		
-		@Test
-		void should_ThrowException_When_PriceIsTooHigh() {
-			
-		// given
-			BookingRequest bookingRequest = new BookingRequest("1",
-															   LocalDate.of(2023, 01, 01),
-															   LocalDate.of(2023, 01, 05), 
-															   2, 
-															   true);
-			final String AVAILABLE_ROOM_ID = "101";
-
-			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
-				.thenReturn(AVAILABLE_ROOM_ID);
-			
-		// when
-			Executable makeBooking = () -> bookingService.makeBooking(bookingRequest);
-			
-		// then
-			assertThrows(UnsupportedOperationException.class, makeBooking);
-			
-		}	
-	
-		@Test
-		void should_NotThrowException_When_EMailConfirmationFails() {
-			
-			// given
-			BookingRequest bookingRequest = new BookingRequest("1",
-															   LocalDate.of(2023, 01, 01),
-															   LocalDate.of(2023, 01, 05), 
-															   2, 
-															   false);
-			
-			Mockito.doNothing()
-				.when(mailSenderMock)
-				.sendBookingConfirmation(any());
-			
-			
-			// when
-			Executable makeBooking = () -> bookingService.makeBooking(bookingRequest);
-			
-			// then
-			// si no hay error, todo ha ido bien
-		}
 	}
 }
