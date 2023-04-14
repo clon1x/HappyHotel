@@ -151,6 +151,44 @@ class BookingServiceTest {
 			assertThrows(BusinessException.class, makeBooking);
 			
 		}
+
+		@Test
+		void should_MakeBooking_When_RequestIsPrepaid() {
+			
+		// given
+			BookingRequest bookingRequest = new BookingRequest("1",
+															   LocalDate.of(2023, 01, 01),
+															   LocalDate.of(2023, 01, 05), 
+															   2, 
+															   true);
+			final String AVAILABLE_ROOM_ID = "101";
+			final String BOOKING_ID = "748921";
+			final String PAYMENT_ANSWER = "OK BBVA AuthCode 1djklñzx7890v807897r891";
+			
+			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
+				.thenReturn(AVAILABLE_ROOM_ID);
+			
+			when(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
+				.thenReturn(PAYMENT_ANSWER);
+			
+			when(bookingDAOMock.save(any())).thenReturn(BOOKING_ID);
+			
+			String expected = BOOKING_ID;
+			
+		// when
+			String actual = bookingService.makeBooking(bookingRequest);
+			
+		// then
+			Mockito.verify(roomServiceMock).findAvailableRoomId(bookingRequest);
+			Mockito.verify(paymentServiceMock).pay(bookingRequest, 400);
+			Mockito.verify(bookingDAOMock).save(bookingRequest);
+			Mockito.verify(roomServiceMock).bookRoom(AVAILABLE_ROOM_ID);
+			Mockito.verify(mailSenderMock).sendBookingConfirmation(BOOKING_ID);
+			
+			assertAll(
+				() -> assertEquals(expected, actual)
+			);
+		}	
 		
 		@Test
 		void should_RethrowException_When_PriceIsTooHigh() {
