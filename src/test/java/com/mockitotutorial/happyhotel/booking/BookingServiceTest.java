@@ -31,7 +31,7 @@ class BookingServiceTest {
 	
 	@BeforeEach
 	void setUp() throws Exception {
-		this.paymentServiceMock = Mockito.mock(PaymentService.class);
+		this.paymentServiceMock = Mockito.spy(PaymentService.class);
 		this.roomServiceMock = Mockito.mock(RoomService.class);
 		this.bookingDAOMock = Mockito.spy(BookingDAO.class);
 		this.mailSenderMock = Mockito.mock(MailSender.class);
@@ -248,7 +248,7 @@ class BookingServiceTest {
 		}
 		
 		@Test
-		void should_RethrowException_When_PriceIsTooHigh() {
+		void should_ThrowException_When_PriceIsTooHigh() {
 			
 		// given
 			BookingRequest bookingRequest = new BookingRequest("1",
@@ -260,9 +260,6 @@ class BookingServiceTest {
 
 			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
 				.thenReturn(AVAILABLE_ROOM_ID);
-			
-			when(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
-				.thenThrow(new UnsupportedOperationException("Only small payments are supported."));
 			
 		// when
 			Executable makeBooking = () -> bookingService.makeBooking(bookingRequest);
