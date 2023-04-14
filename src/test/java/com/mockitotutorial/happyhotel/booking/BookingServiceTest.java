@@ -138,7 +138,7 @@ class BookingServiceTest {
 															   LocalDate.of(2023, 01, 05), 
 															   2, 
 															   false);
-			Mockito.when(roomServiceMock.findAvailableRoomId(bookingRequest))
+			Mockito.when(roomServiceMock.findAvailableRoomId(Mockito.any(BookingRequest.class)))
 				.thenThrow(BusinessException.class);
 			
 			// when
