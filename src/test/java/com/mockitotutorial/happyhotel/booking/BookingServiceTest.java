@@ -3,6 +3,9 @@ package com.mockitotutorial.happyhotel.booking;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -148,5 +151,31 @@ class BookingServiceTest {
 			assertThrows(BusinessException.class, makeBooking);
 			
 		}
+		
+		@Test
+		void should_RethrowException_When_PriceIsTooHigh() {
+			
+		// given
+			BookingRequest bookingRequest = new BookingRequest("1",
+															   LocalDate.of(2023, 01, 01),
+															   LocalDate.of(2023, 01, 05), 
+															   2, 
+															   true);
+			final String AVAILABLE_ROOM_ID = "101";
+
+			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
+				.thenReturn(AVAILABLE_ROOM_ID);
+			
+			when(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
+				.thenThrow(new UnsupportedOperationException("Only small payments are supported."));
+			
+		// when
+			Executable makeBooking = () -> bookingService.makeBooking(bookingRequest);
+			
+		// then
+			assertThrows(UnsupportedOperationException.class, makeBooking);
+			
+		}	
+	
 	}
 }
