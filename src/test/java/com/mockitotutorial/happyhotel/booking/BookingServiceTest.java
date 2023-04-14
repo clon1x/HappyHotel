@@ -32,7 +32,7 @@ class BookingServiceTest {
 	void setUp() throws Exception {
 		this.paymentServiceMock = Mockito.mock(PaymentService.class);
 		this.roomServiceMock = Mockito.mock(RoomService.class);
-		this.bookingDAOMock = Mockito.mock(BookingDAO.class);
+		this.bookingDAOMock = Mockito.spy(BookingDAO.class);
 		this.mailSenderMock = Mockito.mock(MailSender.class);
 		
 		this.bookingService = new BookingService(paymentServiceMock, roomServiceMock, bookingDAOMock, mailSenderMock);
@@ -163,7 +163,6 @@ class BookingServiceTest {
 															   2, 
 															   true);
 			final String AVAILABLE_ROOM_ID = "101";
-			final String BOOKING_ID = "748921";
 			final String PAYMENT_ANSWER = "OK BBVA AuthCode 1djklñzx7890v807897r891";
 			
 			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
@@ -172,23 +171,17 @@ class BookingServiceTest {
 			when(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
 				.thenReturn(PAYMENT_ANSWER);
 			
-			when(bookingDAOMock.save(any())).thenReturn(BOOKING_ID);
-			
-			String expected = BOOKING_ID;
-			
 		// when
-			String actual = bookingService.makeBooking(bookingRequest);
+			String bookingId = bookingService.makeBooking(bookingRequest);
 			
 		// then
 			Mockito.verify(roomServiceMock).findAvailableRoomId(bookingRequest);
 			Mockito.verify(paymentServiceMock).pay(bookingRequest, 400);
 			Mockito.verify(bookingDAOMock).save(bookingRequest);
 			Mockito.verify(roomServiceMock).bookRoom(AVAILABLE_ROOM_ID);
-			Mockito.verify(mailSenderMock).sendBookingConfirmation(BOOKING_ID);
+			Mockito.verify(mailSenderMock).sendBookingConfirmation(bookingId);
 			
-			assertAll(
-				() -> assertEquals(expected, actual)
-			);
+			System.out.println("bookingId = " + bookingId );
 		}	
 
 		@Test
