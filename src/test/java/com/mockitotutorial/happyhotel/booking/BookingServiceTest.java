@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +60,7 @@ class BookingServiceTest {
 			
 		}
 	}
-	
+		
 	@Nested
 	class GetAvailablePlaceCountTests {
 		
@@ -220,6 +221,30 @@ class BookingServiceTest {
 			assertAll(
 				() -> assertEquals(expected, actual)
 			);
+		}
+		
+		@Test
+		void should_CancelBooking_When_InputOK() {
+			
+			// given
+			final String ROOM_ID = "1.3";
+			final String BOOKING_ID = "1";
+			
+			BookingRequest bookingRequest = new BookingRequest("1",
+															   LocalDate.of(2023, 01, 01),
+															   LocalDate.of(2023, 01, 05), 
+															   2, 
+															   false);	
+			bookingRequest.setRoomId(ROOM_ID);
+			
+			doReturn(bookingRequest).when(bookingDAOMock).get(BOOKING_ID);
+			
+			// when
+			bookingService.cancelBooking(BOOKING_ID);
+			
+			// then
+			Mockito.verify(roomServiceMock).unbookRoom(ROOM_ID);
+			Mockito.verify(bookingDAOMock).delete(BOOKING_ID);
 		}
 		
 		@Test
