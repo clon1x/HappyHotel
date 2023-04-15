@@ -196,13 +196,9 @@ class BookingServiceTest {
 															   false);
 			final String AVAILABLE_ROOM_ID = "101";
 			final String BOOKING_ID = "748921";
-			final String PAYMENT_ANSWER = "OK BBVA AuthCode 1djklñzx7890v807897r891";
 			
 			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
 				.thenReturn(AVAILABLE_ROOM_ID);
-			
-			when(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
-				.thenReturn(PAYMENT_ANSWER);
 			
 			when(bookingDAOMock.save(any())).thenReturn(BOOKING_ID);
 			
