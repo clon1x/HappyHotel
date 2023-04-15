@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -85,7 +86,8 @@ class BookingServiceTest {
 		void should_CountAvailablePlaces_When_OneRoomAvailable() {
 			
 			// given
-			Mockito.when(roomServiceMock.getAvailableRooms()).thenReturn(Collections.singletonList(new Room("101", 2)));
+			given(roomServiceMock.getAvailableRooms())
+				.willReturn(Collections.singletonList(new Room("101", 2)));
 			int expected = 2;
 			
 			// when
@@ -101,8 +103,8 @@ class BookingServiceTest {
 			
 			// given
 			List<Room> rooms = Arrays.asList(new Room("101",2), new Room("102",3), new Room("105",1));
-			Mockito.when(roomServiceMock.getAvailableRooms())
-				.thenReturn(rooms);
+			given(roomServiceMock.getAvailableRooms())
+				.willReturn(rooms);
 			int expected = 6;
 
 			// when
@@ -117,9 +119,9 @@ class BookingServiceTest {
 		void should_CountAvailablePlaces_When_CalledMultipleTimes() {
 			
 			// given
-			Mockito.when(roomServiceMock.getAvailableRooms())
-				.thenReturn(Collections.singletonList(new Room("406", 6)))
-				.thenReturn(Collections.emptyList());
+			given(roomServiceMock.getAvailableRooms())
+				.willReturn(Collections.singletonList(new Room("406", 6)))
+				.willReturn(Collections.emptyList());
 			int expectedFirstCall = 6;
 			int expectedSecondCall = 0;
 
@@ -146,8 +148,8 @@ class BookingServiceTest {
 															   LocalDate.of(2023, 01, 05), 
 															   2, 
 															   false);
-			Mockito.when(roomServiceMock.findAvailableRoomId(Mockito.any(BookingRequest.class)))
-				.thenThrow(BusinessException.class);
+			given(roomServiceMock.findAvailableRoomId(Mockito.any(BookingRequest.class)))
+				.willThrow(BusinessException.class);
 			
 			// when
 			Executable makeBooking = () -> bookingService.makeBooking(bookingRequest);
@@ -169,21 +171,21 @@ class BookingServiceTest {
 			final String AVAILABLE_ROOM_ID = "101";
 			final String PAYMENT_ANSWER = "OK BBVA AuthCode 1djklñzx7890v807897r891";
 			
-			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
-				.thenReturn(AVAILABLE_ROOM_ID);
+			given(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
+				.willReturn(AVAILABLE_ROOM_ID);
 			
-			when(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
-				.thenReturn(PAYMENT_ANSWER);
+			given(paymentServiceMock.pay(any(BookingRequest.class), anyDouble()))
+				.willReturn(PAYMENT_ANSWER);
 			
 		// when
 			String bookingId = bookingService.makeBooking(bookingRequest);
 			
 		// then
-			Mockito.verify(roomServiceMock).findAvailableRoomId(bookingRequest);
-			Mockito.verify(paymentServiceMock).pay(bookingRequest, 400);
-			Mockito.verify(bookingDAOMock).save(bookingRequest);
-			Mockito.verify(roomServiceMock).bookRoom(AVAILABLE_ROOM_ID);
-			Mockito.verify(mailSenderMock).sendBookingConfirmation(bookingId);
+			then(roomServiceMock).should().findAvailableRoomId(bookingRequest);
+			then(paymentServiceMock).should().pay(bookingRequest, 400);
+			then(bookingDAOMock).should().save(bookingRequest);
+			then(roomServiceMock).should().bookRoom(AVAILABLE_ROOM_ID);
+			then(mailSenderMock).should().sendBookingConfirmation(bookingId);
 			
 			System.out.println("bookingId = " + bookingId );
 		}	
@@ -200,10 +202,11 @@ class BookingServiceTest {
 			final String AVAILABLE_ROOM_ID = "101";
 			final String BOOKING_ID = "748921";
 			
-			when(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
-				.thenReturn(AVAILABLE_ROOM_ID);
+			given(roomServiceMock.findAvailableRoomId(any(BookingRequest.class)))
+				.willReturn(AVAILABLE_ROOM_ID);
 			
-			when(bookingDAOMock.save(any())).thenReturn(BOOKING_ID);
+			given(bookingDAOMock.save(any()))
+				.willReturn(BOOKING_ID);
 			
 			String expected = BOOKING_ID;
 			
@@ -211,11 +214,11 @@ class BookingServiceTest {
 			String actual = bookingService.makeBooking(bookingRequest);
 			
 		// then
-			Mockito.verify(roomServiceMock).findAvailableRoomId(bookingRequest);
-			Mockito.verify(paymentServiceMock, never()).pay(any(), anyDouble());
-			Mockito.verify(bookingDAOMock).save(bookingRequest);
-			Mockito.verify(roomServiceMock).bookRoom(AVAILABLE_ROOM_ID);
-			Mockito.verify(mailSenderMock).sendBookingConfirmation(BOOKING_ID);
+			then(roomServiceMock).should().findAvailableRoomId(bookingRequest);
+			then(paymentServiceMock).should(never()).pay(any(), anyDouble());
+			then(bookingDAOMock).should().save(bookingRequest);
+			then(roomServiceMock).should().bookRoom(AVAILABLE_ROOM_ID);
+			then(mailSenderMock).should().sendBookingConfirmation(BOOKING_ID);
 			
 			assertAll(
 				() -> assertEquals(expected, actual)
@@ -236,14 +239,14 @@ class BookingServiceTest {
 															   false);	
 			bookingRequest.setRoomId(ROOM_ID);
 			
-			doReturn(bookingRequest).when(bookingDAOMock).get(BOOKING_ID);
+			willReturn(bookingRequest).given(bookingDAOMock).get(BOOKING_ID);
 			
 			// when
 			bookingService.cancelBooking(BOOKING_ID);
 			
 			// then
-			Mockito.verify(roomServiceMock).unbookRoom(ROOM_ID);
-			Mockito.verify(bookingDAOMock).delete(BOOKING_ID);
+			then(roomServiceMock).should().unbookRoom(ROOM_ID);
+			then(bookingDAOMock).should().delete(BOOKING_ID);
 		}
 	}
 }
