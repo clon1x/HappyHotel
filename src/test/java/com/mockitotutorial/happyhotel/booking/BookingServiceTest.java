@@ -14,31 +14,34 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
 
+	@InjectMocks
 	private BookingService bookingService;
 	
+	@Mock
 	private PaymentService paymentServiceMock;
+	
+	@Mock
 	private RoomService roomServiceMock;
+
+	@Spy
 	private BookingDAO bookingDAOMock;
+
+	@Mock
 	private MailSender mailSenderMock;
 	
-	@BeforeEach
-	void setUp() throws Exception {
-		this.paymentServiceMock = Mockito.spy(PaymentService.class);
-		this.roomServiceMock = Mockito.mock(RoomService.class);
-		this.bookingDAOMock = Mockito.spy(BookingDAO.class);
-		this.mailSenderMock = Mockito.mock(MailSender.class);
-		
-		this.bookingService = new BookingService(paymentServiceMock, roomServiceMock, bookingDAOMock, mailSenderMock);
-	}
-
 	@Nested
 	class CalculatePriceTests {
 		@Test
