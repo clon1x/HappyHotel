@@ -193,8 +193,10 @@ class BookingServiceTest {
 			then(roomServiceMock).should().bookRoom(AVAILABLE_ROOM_ID);
 			then(mailSenderMock).should().sendBookingConfirmation(argument.capture());
 			
+			String passedString = argument.getValue();
+			
 			System.out.println("bookingId = " + bookingId + " ... devuelto por save()");
-			System.out.println("bookingId = " + argument.getValue() + " ... en llamada a sendBookingConfirmation");
+			System.out.println("bookingId = " + passedString + " ... en llamada a sendBookingConfirmation");
 		}	
 
 		@Test
