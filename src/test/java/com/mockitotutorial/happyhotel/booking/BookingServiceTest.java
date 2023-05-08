@@ -9,6 +9,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -42,6 +45,9 @@ class BookingServiceTest {
 
 	@Mock
 	private MailSender mailSenderMock;
+	
+	@Captor
+	ArgumentCaptor<String> argument;
 	
 	@Nested
 	class CalculatePriceTests {
@@ -162,7 +168,7 @@ class BookingServiceTest {
 		@Test
 		void should_MakeBooking_When_RequestIsPrepaid() {
 			
-		// given
+		// given			
 			BookingRequest bookingRequest = new BookingRequest("1",
 															   LocalDate.of(2023, 01, 01),
 															   LocalDate.of(2023, 01, 05), 
@@ -185,9 +191,10 @@ class BookingServiceTest {
 			then(paymentServiceMock).should().pay(bookingRequest, 400);
 			then(bookingDAOMock).should().save(bookingRequest);
 			then(roomServiceMock).should().bookRoom(AVAILABLE_ROOM_ID);
-			then(mailSenderMock).should().sendBookingConfirmation(bookingId);
+			then(mailSenderMock).should().sendBookingConfirmation(argument.capture());
 			
-			System.out.println("bookingId = " + bookingId );
+			System.out.println("bookingId = " + bookingId + " ... devuelto por save()");
+			System.out.println("bookingId = " + argument.getValue() + " ... en llamada a sendBookingConfirmation");
 		}	
 
 		@Test
